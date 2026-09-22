@@ -151,11 +151,20 @@
             <button data-arka="yok">🚫 Kapalı</button>
             <button data-arka="renk">🎨 Düz renk</button>
             <button data-arka="yesil">🟩 Yeşil ekran (kurgu)</button>
+            <button data-arka="foto">🖼️ Fotoğraf</button>
           </div>
           <div class="renkSatir">
             <label for="arkaRenk">Arka plan rengi</label>
             <input type="color" id="arkaRenk" value="#0b1220">
             <span id="arkaRenkYazi">#0b1220</span>
+          </div>
+          <div class="renkSatir">
+            <label for="arkaFotoGirdi">Arka plan fotoğrafı</label>
+            <input type="file" id="arkaFotoGirdi" accept="image/*" class="gizli">
+            <button class="dugme" data-act="arkaFotoSec">🖼️ Fotoğraf seç</button>
+            <button class="dugme" data-act="arkaFotoSil">🗑️ Kaldır</button>
+            <img id="arkaFotoOnizleme" class="gizli" alt="seçilen arka plan">
+            <span id="arkaFotoYazi">seçili değil</span>
           </div>
         </div>
         <div class="satirAy">
@@ -165,6 +174,7 @@
         <div class="altSatir">
           <button class="dugme" data-act="efektSifirla">♻️ Efektleri sıfırla</button>
         </div>
+        <div class="bosNot" id="ekranNot">Ekran bilgisi yükleniyor…</div>
         <div class="bosNot" id="kaliteNot">Kalite ve efekt ayarları hem önizlemeye hem kayda uygulanır. “Yok/16:9/30/100%” seçiliyken kayıt doğrudan kamera akışından alınır (en hızlı, en yüksek kalite).</div>
       </div>
     </section>

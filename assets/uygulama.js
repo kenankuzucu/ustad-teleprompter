@@ -10,7 +10,8 @@ var VARSAYILAN = {
   ayna: false, kilavuz: true, dongu: false, uyanik: true, bip: true, medya: true,
   ezber: false, takip: false, sesliKumanda: false, yesilPerde: false, sesKaydet: true,
   bicim: "", mikrofonDuzeltme: true,
-  kalite: "1080", oran: "16:9", fps: 30, filtre: "yok", arka: "yok", arkaRenk: "#0b1220", zoom: 100
+  kalite: "1080", oran: "16:9", fps: 30, filtre: "yok", arka: "yok", arkaRenk: "#0b1220", zoom: 100,
+  arkaFotoAd: ""
 };
 
 var TEMALAR = [
@@ -361,6 +362,50 @@ function kromaSil(veri){
   return silinen;
 }
 
+/* arka plan fotoğrafı: bellekte tutulur (depoya yazılmaz, boyutu büyük olabilir) */
+var ARKA_FOTO = { resim: null, ad: "" };
+function arkaFotoyuYukle(dosya){
+  if(!dosya) return Promise.reject(new Error("dosya yok"));
+  return new Promise(function(oku, hata){
+    var fr = new FileReader();
+    fr.onload = function(){
+      var im = new Image();
+      im.onload = function(){ ARKA_FOTO.resim = im; ARKA_FOTO.ad = dosya.name; oku(im); };
+      im.onerror = function(){ hata(new Error("resim açılamadı")); };
+      im.src = fr.result;
+    };
+    fr.onerror = function(){ hata(new Error("dosya okunamadı")); };
+    fr.readAsDataURL(dosya);
+  });
+}
+/* zemini çiz: fotoğraf varsa kırparak kaplar, yoksa düz renk */
+function zeminCiz(ctx, w, h){
+  if(V.arka === "foto" && ARKA_FOTO.resim){
+    var im = ARKA_FOTO.resim;
+    var hedefOran = w / h, kaynakOran = im.width / im.height;
+    var sw, sh, sx, sy;
+    if(kaynakOran > hedefOran){ sh = im.height; sw = im.height * hedefOran; sx = (im.width - sw) / 2; sy = 0; }
+    else { sw = im.width; sh = im.width / hedefOran; sx = 0; sy = (im.height - sh) / 2; }
+    ctx.drawImage(im, sx, sy, sw, sh, 0, 0, w, h);
+    return true;
+  }
+  ctx.fillStyle = (V.arka === "yesil") ? "#00b140" : V.arkaRenk;
+  ctx.fillRect(0, 0, w, h);
+  return false;
+}
+/* ekran çözünürlüğü bilgisi */
+function ekranOlcuYaz(){
+  var not = $("ekranNot");
+  if(!not) return;
+  var dpr = window.devicePixelRatio || 1;
+  var hedef = hedefOlcu();
+  var v = $("kameraAkis");
+  not.textContent = "Ekran: " + screen.width + "×" + screen.height + "  ·  pencere: " + window.innerWidth + "×" + window.innerHeight +
+    "  ·  piksel oranı: " + dpr + "  ·  çizim alanı: " + Math.round(window.innerWidth * dpr) + "×" + Math.round(window.innerHeight * dpr) +
+    "  ·  kayıt hedefi: " + hedef[0] + "×" + hedef[1] +
+    "  ·  kameranın verdiği: " + (KAM.acik && v && v.videoWidth ? (v.videoWidth + "×" + v.videoHeight) : "kapalı");
+}
+
 /* ------------------------- kayıt biçimleri (codec) ------------------------- */
 /* Sıra önemli: ilk desteklenen varsayılan olur. MP4/H.264 en geniş uyumluluk. */
 var KAYIT_BICIMLERI = [
@@ -553,7 +598,7 @@ function kaliteDegisti(){
 function kameraOlcuYaz(){
   var not = $("kaliteNot"), v = $("kameraAkis");
   if(!not) return;
-  if(!KAM.acik){ not.textContent = "Kamera kapalı — “Kamerayı aç” dediğinde gerçek çözünürlük burada yazılır."; return; }
+  if(!KAM.acik){ not.textContent = "Kamera kapalı — “Kamerayı aç” dediğinde gerçek çözünürlük burada yazılır."; ekranOlcuYaz(); return; }
   var w = v ? v.videoWidth : 0, h = v ? v.videoHeight : 0;
   var hedef = hedefOlcu();
   var uyar = (kaliteSay() === 2160 && h && h < 1400) ? " ⚠️ Bu kamera 4K vermiyor; cihazın en yükseği kullanılıyor." : "";
@@ -562,6 +607,7 @@ function kameraOlcuYaz(){
     (kanvasGerekli() ? "kanvas hattı (filtre/oran/zoom)" : "doğrudan kamera (en yüksek kalite)") +
     (V.arka !== "yok" ? "  ·  kroma işleme: " + islemeOlcu().join("×") : "") +
     (V.filtre !== "yok" ? "  ·  filtre: " + (FILTRELER[V.filtre] || FILTRELER.yok).ad : "") + uyar;
+  ekranOlcuYaz();
 }
 /* önizlemeye filtre/zoom/oran uygula; yeşil perde silme canlı önizleme tuvalinde gösterilir */
 function efektOnizleme(){
@@ -577,7 +623,7 @@ function efektOnizleme(){
   if(kk){
     kk.classList.remove("oran-16-9", "oran-9-16", "oran-1-1", "oran-4-5");
     kk.classList.add("oran-" + V.oran.replace(":", "-"));
-    kk.style.background = (V.arka === "yok") ? "" : (V.arka === "yesil" ? "#00b140" : V.arkaRenk);
+    kk.style.background = (V.arka === "yok") ? "" : (V.arka === "foto" ? "#0b1220" : (V.arka === "yesil" ? "#00b140" : V.arkaRenk));
   }
   onizlemeDongusu();
   kameraOlcuYaz();
@@ -597,7 +643,6 @@ function onizlemeDongusu(){
   tuval.classList.remove("gizli");
   var v = $("kameraAkis"); if(v) v.style.visibility = "hidden";
   var ctx = tuval.getContext("2d", { willReadFrequently: true });
-  var renk = V.arka === "yesil" ? "#00b140" : V.arkaRenk;
   if(KAM.onizlemeZaman) clearInterval(KAM.onizlemeZaman);
   KAM.onizlemeZaman = setInterval(function(){
     if(!KAM.acik || V.arka === "yok" || !v.videoWidth) return;
@@ -617,7 +662,7 @@ function onizlemeDongusu(){
       kromaSil(veri);
       ctx.putImageData(veri, 0, 0);
       ctx.globalCompositeOperation = "destination-over";
-      ctx.fillStyle = renk; ctx.fillRect(0, 0, tuval.width, tuval.height);
+      zeminCiz(ctx, tuval.width, tuval.height);
       ctx.globalCompositeOperation = "source-over";
     }catch(e){}
   }, 66);
@@ -637,7 +682,6 @@ function kanvasAksiniKur(){
   var v = $("kameraAkis");
   var fps = parseInt(V.fps, 10) || 30;
   var z = (parseInt(V.zoom, 10) || 100) / 100;
-  var renk = V.arka === "yesil" ? "#00b140" : V.arkaRenk;
   function cerceve(){
     if(!v || !v.videoWidth) return;
     var hedefOran = K.width / K.height, kaynakOran = v.videoWidth / v.videoHeight;
@@ -659,8 +703,7 @@ function kanvasAksiniKur(){
     var veri = ctxAra.getImageData(0, 0, ara.width, ara.height);
     KAM.silinenPiksel = kromaSil(veri);
     ctxAra.putImageData(veri, 0, 0);
-    ctx.fillStyle = renk;
-    ctx.fillRect(0, 0, K.width, K.height);
+    zeminCiz(ctx, K.width, K.height);
     ctx.drawImage(ara, 0, 0);
   }
   cerceve();
@@ -972,6 +1015,8 @@ function ayarlariCiz(){
   if($("etZoom")) $("etZoom").textContent = V.zoom;
   if($("arkaRenk")) $("arkaRenk").value = V.arkaRenk;
   if($("arkaRenkYazi")) $("arkaRenkYazi").textContent = V.arkaRenk;
+  if($("arkaFotoYazi")) $("arkaFotoYazi").textContent = ARKA_FOTO.ad || "seçili değil";
+  if($("arkaFotoOnizleme") && ARKA_FOTO.resim){ $("arkaFotoOnizleme").src = ARKA_FOTO.resim.src; $("arkaFotoOnizleme").classList.remove("gizli"); }
   temaUygula(); fontUygula(); sahneAyarlariUygula(); yerIciCiz();
 }
 function seciliYap(kapId, nitelik, deger){
@@ -1067,6 +1112,19 @@ function efektOlaylari(){
     if($("etZoom")) $("etZoom").textContent = V.zoom;
     efektOnizleme(); yaz();
   });
+  var af = $("arkaFotoGirdi");
+  if(af) af.addEventListener("change", function(){
+    var d = af.files && af.files[0];
+    if(!d) return;
+    arkaFotoyuYukle(d).then(function(){
+      V.arka = "foto"; V.arkaFotoAd = ARKA_FOTO.ad;
+      var onz = $("arkaFotoOnizleme");
+      if(onz){ onz.src = ARKA_FOTO.resim.src; onz.classList.remove("gizli"); }
+      if($("arkaFotoYazi")) $("arkaFotoYazi").textContent = ARKA_FOTO.ad;
+      ayarlariCiz(); efektOnizleme(); yaz();
+      ipucuGoster("🖼️ Arka plan fotoğrafı: " + ARKA_FOTO.ad);
+    }).catch(function(e){ ipucuGoster("⚠️ Fotoğraf açılamadı: " + e.message); });
+  });
   var ar = $("arkaRenk");
   if(ar) ar.addEventListener("input", function(){
     V.arkaRenk = ar.value;
@@ -1088,7 +1146,11 @@ document.addEventListener("click", function(e){
   if(t.hasAttribute("data-oran")){ V.oran = t.getAttribute("data-oran"); kaliteDegisti(); return; }
   if(t.hasAttribute("data-fps")){ V.fps = parseInt(t.getAttribute("data-fps"), 10) || 30; ayarlariCiz(); efektOnizleme(); yaz(); return; }
   if(t.hasAttribute("data-filtre")){ V.filtre = t.getAttribute("data-filtre"); ayarlariCiz(); efektOnizleme(); yaz(); return; }
-  if(t.hasAttribute("data-arka")){ V.arka = t.getAttribute("data-arka"); ayarlariCiz(); efektOnizleme(); yaz(); return; }
+  if(t.hasAttribute("data-arka")){
+    V.arka = t.getAttribute("data-arka");
+    if(V.arka === "foto" && !ARKA_FOTO.resim){ var gi = $("arkaFotoGirdi"); if(gi) gi.click(); }
+    ayarlariCiz(); efektOnizleme(); yaz(); return;
+  }
 
   var act = t.getAttribute("data-act");
   if(act === "oku" || act === "okuKayit"){
@@ -1139,6 +1201,15 @@ document.addEventListener("click", function(e){
     kayitBasla();
   }else if(act === "kayitDurdur"){
     kayitDurdur();
+  }else if(act === "arkaFotoSec"){
+    var gi2 = $("arkaFotoGirdi"); if(gi2) gi2.click();
+  }else if(act === "arkaFotoSil"){
+    ARKA_FOTO.resim = null; ARKA_FOTO.ad = ""; V.arkaFotoAd = "";
+    var onz = $("arkaFotoOnizleme"); if(onz){ onz.classList.add("gizli"); onz.removeAttribute("src"); }
+    if($("arkaFotoYazi")) $("arkaFotoYazi").textContent = "seçili değil";
+    if(V.arka === "foto"){ V.arka = "yok"; }
+    ayarlariCiz(); efektOnizleme(); yaz();
+    ipucuGoster("🗑️ Arka plan fotoğrafı kaldırıldı");
   }else if(act === "efektSifirla"){
     V.kalite = "1080"; V.oran = "16:9"; V.fps = 30; V.filtre = "yok";
     V.arka = "yok"; V.zoom = 100; V.arkaRenk = "#0b1220";
@@ -1250,6 +1321,8 @@ fontListesiCiz();
 efektOlaylari();
 ayarlariCiz();
 efektOnizleme();
+ekranOlcuYaz();
+window.addEventListener("resize", ekranOlcuYaz);
 kumandaBaslat();
 medyaSessionKur();
 
@@ -1277,6 +1350,42 @@ window.UT = {
             filtreCss: filtreCss() };
  },
  kanvasOlcu: function(){ return hedefOlcu().join("x"); },
+ ekranDurum: function(){
+   return { ekran: screen.width + "x" + screen.height, pencere: window.innerWidth + "x" + window.innerHeight,
+            piksel_orani: window.devicePixelRatio || 1, kayit_hedefi: hedefOlcu().join("x"),
+            kamera: KAM.acik ? ($("kameraAkis").videoWidth + "x" + $("kameraAkis").videoHeight) : "kapali",
+            ekran_notu: $("ekranNot") ? $("ekranNot").textContent : "",
+            arka: V.arka, arka_foto: ARKA_FOTO.ad || "yok", foto_yuklu: !!ARKA_FOTO.resim };
+ },
+ arkaFotoYukleTest: function(){
+   /* test icin tuvalden uretilmis bir resim yukler */
+   var t = document.createElement("canvas"); t.width = 400; t.height = 300;
+   var c2 = t.getContext("2d");
+   c2.fillStyle = "#ff00ff"; c2.fillRect(0, 0, 400, 300);
+   c2.fillStyle = "#00ffff"; c2.fillRect(0, 0, 100, 100);
+   var veri = t.toDataURL("image/png");
+   return new Promise(function(oku){
+     var im = new Image();
+     im.onload = function(){ ARKA_FOTO.resim = im; ARKA_FOTO.ad = "test.png"; V.arka = "foto"; V.arkaFotoAd = "test.png";
+                             ayarlariCiz(); efektOnizleme(); oku({ yuklendi: true, olcu: im.width + "x" + im.height }); };
+     im.onerror = function(){ oku({ yuklendi: false }); };
+     im.src = veri;
+   });
+ },
+ zeminCizTest: function(){
+   /* zemin cizimini dogrudan sinar: foto seciliyken zemin foto, degilken duz renk */
+   var t = document.createElement("canvas"); t.width = 60; t.height = 60;
+   var c2 = t.getContext("2d");
+   var eskiArka = V.arka;
+   V.arka = "renk"; V.arkaRenk = "#0b1220";
+   zeminCiz(c2, 60, 60);
+   var duz = Array.prototype.slice.call(c2.getImageData(2, 2, 1, 1).data);
+   V.arka = "foto";
+   zeminCiz(c2, 60, 60);
+   var foto = Array.prototype.slice.call(c2.getImageData(2, 2, 1, 1).data);
+   V.arka = eskiArka;
+   return { duz_renk_rgb: duz.slice(0, 3).join(","), foto_rgb: foto.slice(0, 3).join(",") };
+ },
  kromaDeneme: function(){
    /* yeşil perde matematiğini doğrudan sınar: sentetik tuval -> silinen piksel sayısı */
    var t = document.createElement("canvas"); t.width = 20; t.height = 10;

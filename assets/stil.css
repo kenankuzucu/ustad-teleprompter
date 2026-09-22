@@ -309,3 +309,6 @@ select.secim option:disabled{ color:#7c8798; }
 .kameraKutu.oran-4-5{aspect-ratio:4/5;max-height:60vh}
 
 #kameraOnizleme{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent}
+
+#arkaFotoOnizleme{width:46px;height:34px;object-fit:cover;border-radius:8px;border:1px solid var(--cizgi,#2b3d5c)}
+.renkSatir button.dugme{padding:8px 12px;font-size:13.5px}

@@ -1,6 +1,6 @@
 /* ÜSTAD TELEPROMPTER — çevrimdışı servis çalışanı
    İlk açılıştan sonra uygulama internet olmadan da çalışır. */
-const ONBELLEK = "ustad-teleprompter-v2.5";
+const ONBELLEK = "ustad-teleprompter-v2.6";
 const DOSYALAR = [
   "./", "./index.html", "./manifest.json",
   "./assets/stil.css", "./assets/uygulama.js", "./assets/fontlar.css",
