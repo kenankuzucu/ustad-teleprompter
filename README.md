@@ -15,7 +15,7 @@ telefona/web'e uygulama gibi kurulabilir.
 - Telefondan kumanda (bilgisayarda yerel sunucu açıkken)
 
 ## Telefona kurulum
-- **Android:** depodaki APK'yı kur (WebView tabanlı, çevrimdışı).
+- **Android:** [ustad-teleprompter-v2.4.apk](ustad-teleprompter-v2.4.apk) dosyasını indir ve kur (WebView tabanlı, çevrimdışı).
 - **iPhone/iPad:** Safari ile canlı adresi aç → **Paylaş → Ana Ekrana Ekle**. Uygulama simgesiyle açılır, çevrimdışı çalışır.
 
 ## Dürüst notlar
