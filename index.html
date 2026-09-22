@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ÜSTAD TELEPROMPTER</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1220'/><rect x='18' y='26' width='64' height='9' rx='4.5' fill='%2338bdf8'/><rect x='18' y='45' width='44' height='9' rx='4.5' fill='%23ffffff'/><rect x='18' y='64' width='54' height='9' rx='4.5' fill='%2334d399'/></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ÜSTAD Teleprompter">
+<link rel="apple-touch-icon" href="img/ikon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="img/ikon-192.png">
+<meta name="description" content="Konuşma metnini ekranda kaydırarak okutan teleprompter. Kamera + kayıt, 15 tema, çevrimdışı.">
+<link rel="stylesheet" href="assets/fontlar.css">
+<link rel="stylesheet" href="assets/stil.css">
+</head>
+<body>
+
+<header class="ustBar">
+  <div class="marka">
+    <img class="madalyon" id="madalyon" src="img/madalyon.jpg" alt="ÜSTAD KENAN KUZUCU">
+    <div class="markaYazi">
+      <b>ÜSTAD KENAN KUZUCU</b>
+      <small>ÜSTAD TELEPROMPTER · kayan konuşma metni</small>
+    </div>
+  </div>
+  <div class="ustBos"></div>
+  <button class="ustDugme" data-act="txtIceri">📂 .txt içe al</button>
+  <button class="ustDugme" data-act="txtIndir">💾 .txt indir</button>
+  <button class="ustDugme" data-act="yazdir">🖨 Yazdır</button>
+  <button class="ustDugme" data-act="ornek">📄 Örnek metin</button>
+  <button class="ustDugme birincil" data-act="oku">▶ OKUMAYA BAŞLA</button>
+</header>
+
+<div class="govde">
+
+  <div class="solSutun">
+
+    <section class="kart">
+      <div class="kartBas bMetin"><span class="sayi">1</span> KONUŞMA METNİN</div>
+      <div class="kartGovde">
+        <textarea id="metinAlani" spellcheck="false" placeholder="Konuşma metnini buraya yaz ya da yapıştır...&#10;&#10;Biçim işaretleri:&#10;  **kalın**        kalın ve parlak yazı&#10;  *eğik*          eğik yazı&#10;  ==işaretli==     fosforlu kalem&#10;  [DUR]            yazı okuma çizgisine gelince durur, dokununca devam eder&#10;  [YAVAŞ] [HIZLI]  bu andan sonrasını yavaşlatır / hızlandırır&#10;  [NORMAL]         normal hıza döner"></textarea>
+        <div class="altSatir">
+          <button class="dugme yesil" data-act="kaydet">💾 Bu metni kaydet</button>
+          <button class="dugme mavi" data-act="oku">▶ Okumaya başla</button>
+          <button class="dugme" data-act="devam">🔖 Kaldığım yerden devam</button>
+          <button class="dugme" data-act="temizle">🧹 Temizle</button>
+        </div>
+        <div class="olcumSatir">
+          <span class="cip" id="sayac">0 kelime · 0 karakter</span>
+          <span class="cip" id="sureTahmini">Tahmini okuma süresi: —</span>
+          <span class="cip" id="yerIci">Kaldığın yer: —</span>
+        </div>
+        <input type="file" id="dosyaGirdi" accept=".txt,text/plain" class="gizli">
+      </div>
+    </section>
+
+    <section class="kart">
+      <div class="kartBas bCekim"><span class="sayi">2</span> ÇEKİM — KAMERA VE KAYIT</div>
+      <div class="kartGovde">
+        <div class="kameraKutu" id="kameraKutu">
+          <video id="kameraAkis" playsinline muted autoplay></video>
+          <div class="kameraBos" id="kameraBos">📷 Kamera kapalı<br><small>“Kamerayı aç” düğmesine bas — çekim öncesi kendini görürsün.</small></div>
+          <div class="kayitRozet gizli" id="kayitRozet">● KAYIT <b id="kayitSure">00:00</b></div>
+        </div>
+        <div class="altSatir">
+          <button class="dugme mavi" data-act="kameraAc">📷 Kamerayı aç</button>
+          <button class="dugme kirmizi" data-act="kayitBasla">⏺ Kaydı başlat</button>
+          <button class="dugme" data-act="kayitDurdur">⏹ Kaydı bitir</button>
+          <a class="dugme indir gizli" id="indirLink" download="ustad-cekim.webm">⬇ Kaydı indir</a>
+          <button class="dugme gizli" id="farkliKaydet" data-act="farkliKaydet">📁 Farklı kaydet (klasör ve isim seç)</button>
+        </div>
+        <div class="ayarBlok kucukBlok">
+          <div class="satirAy">
+            <label>Kayıt biçimi (codec)</label>
+            <select class="secim" id="secBicim"></select>
+          </div>
+          <div class="satirAy">
+            <label>Kamera yerleşimi</label>
+            <div class="secim" id="secYerlesim">
+              <button data-yerlesim="tam">Kamera tam ekran, yazı üstünde</button>
+              <button data-yerlesim="ust">Yazı üstte şerit, kamera altta</button>
+            </div>
+          </div>
+          <div class="satirAy">
+            <label>Okuma yazısının şeffaflığı <b id="etOpak">70</b></label>
+            <input type="range" id="gOpak" min="10" max="100" step="5">
+          </div>
+          <label class="anahtar"><input type="checkbox" id="kYesilPerde"> 🟩 Yeşil perde modu (kurguda arka planı silersin)</label>
+          <label class="anahtar"><input type="checkbox" id="kSesKaydet"> 🎙 Kayıtta mikrofonu da al</label>
+          <div class="bosNot">Kamera ve kayıt Chrome'da çalışır; izin istenirse “İzin ver” deyin. Kayıt <b>.webm</b> dosyası olarak iner (CapCut, Clipchamp, DaVinci açılıyor). Teleprompter yazısı videoya girmez — o senin için ekranda durur; kayıt kameranın görüntüsüdür.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="sagSutun">
+
+    <section class="kart">
+      <div class="kartBas bKayit"><span class="sayi">3</span> KAYITLI METİNLER</div>
+      <div class="kartGovde">
+        <div class="kayitListe" id="kayitListe"></div>
+      </div>
+    </section>
+
+    <section class="kart">
+      <div class="kartBas bAyar"><span class="sayi">4</span> AYARLAR</div>
+      <div class="kartGovde">
+        <div class="ayarBlok">
+
+          <div class="satirAy">
+            <label>Kaydırma hızı <b id="etHiz">60</b> px/sn</label>
+            <input type="range" id="gHiz" min="10" max="260" step="5">
+          </div>
+
+          <div class="satirAy">
+            <label>Süreli okuma: metni kaç dakikada bitirsin? <b id="etDakika">3</b> dk</label>
+            <input type="range" id="gDakika" min="1" max="30" step="1">
+            <button class="dugme kucuk" data-act="sureyeAyarla">⏱ Süreye göre hızı ayarla</button>
+          </div>
+
+          <div class="satirAy">
+            <label>Yazı büyüklüğü <b id="etBoyut">64</b></label>
+            <input type="range" id="gBoyut" min="24" max="160" step="2">
+          </div>
+
+          <div class="satirAy">
+            <label>Satır aralığı <b id="etSatir">1.45</b></label>
+            <input type="range" id="gSatir" min="100" max="240" step="5">
+          </div>
+
+          <div class="satirAy">
+            <label>Yan boşluk (%) <b id="etKenar">7</b></label>
+            <input type="range" id="gKenar" min="2" max="30" step="1">
+          </div>
+
+          <div class="satirAy">
+            <label>Geri sayım</label>
+            <div class="secim" id="secSayac">
+              <button data-sayac="0">Yok</button>
+              <button data-sayac="3">3 sn</button>
+              <button data-sayac="5">5 sn</button>
+              <button data-sayac="10">10 sn</button>
+            </div>
+          </div>
+
+          <div class="satirAy">
+            <label>Arka plan rengi — 15 tema</label>
+            <div class="secim temaSecim" id="secTema"></div>
+          </div>
+
+          <div class="satirAy">
+            <label>Yazı tipi</label>
+            <div class="secim" id="secFont"></div>
+          </div>
+
+          <div class="satirAy">
+            <label>Vurgu rengi (==işaretli== yazılar)</label>
+            <div class="secim" id="secVurgu">
+              <button data-vurgu="#fbbf24">Sarı</button>
+              <button data-vurgu="#34d399">Yeşil</button>
+              <button data-vurgu="#38bdf8">Mavi</button>
+              <button data-vurgu="#fb7185">Kırmızı</button>
+              <button data-vurgu="#c084fc">Mor</button>
+            </div>
+          </div>
+
+          <label class="anahtar"><input type="checkbox" id="kAyna"> 🪞 Ayna modu (cam/ayna önünde okurken)</label>
+          <label class="anahtar"><input type="checkbox" id="kKilavuz"> 📏 Kılavuz çizgisi göster</label>
+          <label class="anahtar"><input type="checkbox" id="kDongu"> 🔁 Metin bitince baştan başlat</label>
+          <label class="anahtar"><input type="checkbox" id="kUyanik"> 💡 Okurken ekran sönmesin</label>
+          <label class="anahtar"><input type="checkbox" id="kBip"> 🔔 Sesli geri sayım (bip) ve bitiş uyarısı</label>
+          <label class="anahtar"><input type="checkbox" id="kMedya"> 🎧 Kulaklık/ses düğmesiyle oynat-durdur</label>
+          <label class="anahtar"><input type="checkbox" id="kEzber"> 🧠 Ezber modu (okumadığın satırlar bulanık)</label>
+          <label class="anahtar"><input type="checkbox" id="kTakip"> 🗣 Konuşma takipli kaydırma (sen susunca durur)</label>
+          <label class="anahtar"><input type="checkbox" id="kSesliKumanda"> 🎤 Sesli kumanda (“dur”, “devam”, “hızlan”)</label>
+
+          <div class="bosNot">
+            <b>Kısayol tuşları</b><br>
+            Boşluk: başlat/durdur · ↑ ↓: hız · + −: yazı boyutu · A: ayna ·
+            K: kılavuz · E: ezber · R: başa dön · F: tam ekran · Esc: çıkış
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="kart">
+      <div class="kartBas bKumanda"><span class="sayi">5</span> TELEFONDAN KUMANDA</div>
+      <div class="kartGovde">
+        <div class="bosNot">
+          Telefonu ikinci kumanda gibi kullanmak için bilgisayarda <b>kumanda-sunucu.py</b> dosyasını çalıştır,
+          çıkan adresi telefonunun tarayıcısına yaz; telefondaki sayfada durdur/oynat, hız, başa dön düğmeleri olur.
+          <br><br>
+          <b>Sunucu adresi:</b> <span id="kumandaAdres">kumanda-sunucu.py çalışınca burada görünür</span>
+          <button class="dugme kucuk" data-act="adresKopyala">📋 Adresi kopyala</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ================= OKUMA SAHNESİ ================= -->
+<div id="sahne">
+  <video id="sahneKamera" playsinline muted autoplay></video>
+  <div id="aynaKap">
+    <div id="kaydiran"><div id="prompt"></div></div>
+  </div>
+  <div class="kaplama ust"></div>
+  <div class="kaplama alt"></div>
+  <div id="kilavuz"><span class="ok">▶</span></div>
+  <div id="ilerleme"></div>
+  <div id="durumSerit">
+    <span id="dSure">—</span>
+    <span class="ayrac">·</span>
+    <span id="dKalan">kalan —</span>
+    <span class="ayrac">·</span>
+    <span id="dHiz">60 px/sn</span>
+    <span class="ayrac">·</span>
+    <span id="dYer">%0</span>
+  </div>
+  <div id="sesliRozet" class="gizli">🎤 dinliyorum…</div>
+  <div id="ipucu"></div>
+  <div id="sayacKat">3</div>
+  <div id="kumanda">
+    <button class="oynat" id="dOynat" title="Boşluk">▶</button>
+    <button id="dBasla" title="Başa dön (R)">⏮</button>
+    <button id="dYavas" title="Yavaşlat (↓)">− Hız</button>
+    <button id="dHizli" title="Hızlandır (↑)">+ Hız</button>
+    <span class="etiket" id="etHizSahne">60 px/sn</span>
+    <button id="dKucuk" title="Yazıyı küçült (−)">A−</button>
+    <button id="dBuyuk" title="Yazıyı büyüt (+)">A+</button>
+    <button id="dAyna" title="Ayna modu (A)">🪞</button>
+    <button id="dEzber" title="Ezber modu (E)">🧠</button>
+    <button id="dTema" title="Arka plan rengi">🎨</button>
+    <button id="dYerImi" title="Kaldığın yeri kaydet">🔖</button>
+    <button class="kirmizi" id="dKayitKamera" title="Kamerayı aç/kapat">📷</button>
+    <button class="cikis" id="dCikis" title="Çıkış (Esc)">✕</button>
+  </div>
+</div>
+
+<div id="yazdirilacak"></div>
+
+<script src="assets/uygulama.js"></script>
+</body>
+</html>
