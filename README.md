@@ -2,6 +2,8 @@
 
 ![GitHub yedeği ekranı](belge/github-yedek-ekrani.png)
 
+![APK v2.6 künye kartı](belge/apk-v2.6-karti.png)
+
 Konuşma metnini ekranda kaydırarak okutan teleprompter. **Türkçe**, tam **çevrimdışı** çalışır,
 telefona/web'e uygulama gibi kurulabilir.
 
