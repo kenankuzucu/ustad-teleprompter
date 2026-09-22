@@ -1,5 +1,7 @@
 # ÜSTAD TELEPROMPTER
 
+![GitHub yedeği ekranı](belge/github-yedek-ekrani.png)
+
 Konuşma metnini ekranda kaydırarak okutan teleprompter. **Türkçe**, tam **çevrimdışı** çalışır,
 telefona/web'e uygulama gibi kurulabilir.
 
