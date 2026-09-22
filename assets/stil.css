@@ -93,6 +93,7 @@ button{cursor:pointer}
 .bKayit{background:linear-gradient(90deg,var(--b3),#f59e0b);color:#2b1a00}
 .bAyar{background:linear-gradient(90deg,var(--b4),#a855f7);color:#1c0733}
 .bKumanda{background:linear-gradient(90deg,var(--b1),#2563eb);color:#04182e}
+.bEfekt{background:linear-gradient(90deg,#22d3ee,#f43f5e);color:#180016}
 .kartGovde{padding:14px}
 #metinAlani{
   width:100%;min-height:300px;resize:vertical;background:rgba(0,0,0,.22);color:var(--yazi);
@@ -289,3 +290,22 @@ select.secim{
   border:1px solid var(--cizgi, #2b3d5c); font:inherit; font-size:14px;
 }
 select.secim option:disabled{ color:#7c8798; }
+
+/* ---------- kalite & efekt (TikTok modu) ---------- */
+.renkSatir{display:flex;align-items:center;gap:10px;margin-top:9px;flex-wrap:wrap}
+.renkSatir label{font-size:13.5px;color:var(--yazi2)}
+.renkSatir input[type=color]{
+  width:52px;height:34px;padding:2px;border-radius:9px;cursor:pointer;
+  background:var(--kutu2,#16243c);border:1px solid var(--cizgi,#2b3d5c)
+}
+.renkSatir span{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--yazi2)}
+
+/* kamera önizlemesi seçilen oranda gösterilsin (kayıt da o oranda çıkar) */
+.kameraKutu{position:relative;overflow:hidden}
+#kameraAkis{object-fit:cover;transition:filter .2s}
+.kameraKutu.oran-16-9{aspect-ratio:16/9}
+.kameraKutu.oran-9-16{aspect-ratio:9/16;max-height:60vh}
+.kameraKutu.oran-1-1{aspect-ratio:1/1;max-height:60vh}
+.kameraKutu.oran-4-5{aspect-ratio:4/5;max-height:60vh}
+
+#kameraOnizleme{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent}

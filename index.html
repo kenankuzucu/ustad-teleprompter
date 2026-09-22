@@ -63,6 +63,7 @@
       <div class="kartGovde">
         <div class="kameraKutu" id="kameraKutu">
           <video id="kameraAkis" playsinline muted autoplay></video>
+          <canvas id="kameraOnizleme" class="gizli"></canvas>
           <div class="kameraBos" id="kameraBos">📷 Kamera kapalı<br><small>“Kamerayı aç” düğmesine bas — çekim öncesi kendini görürsün.</small></div>
           <div class="kayitRozet gizli" id="kayitRozet">● KAYIT <b id="kayitSure">00:00</b></div>
         </div>
@@ -101,14 +102,82 @@
   <div class="sagSutun">
 
     <section class="kart">
-      <div class="kartBas bKayit"><span class="sayi">3</span> KAYITLI METİNLER</div>
+      <div class="kartBas bEfekt"><span class="sayi">3</span> KALİTE VE EFEKT — TİKTOK MODU</div>
+      <div class="kartGovde">
+        <noscript>Bu bölüm için JavaScript gerekir.</noscript>
+        <div class="satirAy">
+          <label>Görüntü kalitesi <small>(kameranın izin verdiği en yüksek)</small></label>
+          <div class="secim" id="secKalite">
+            <button data-kalite="720">📱 720p · ekonomi</button>
+            <button data-kalite="1080">🎬 1080p · Full HD</button>
+            <button data-kalite="2160">💎 4K · en yüksek</button>
+          </div>
+        </div>
+        <div class="satirAy">
+          <label>Çerçeve oranı</label>
+          <div class="secim" id="secOran">
+            <button data-oran="16:9">📺 16:9 · YouTube</button>
+            <button data-oran="9:16">📲 9:16 · TikTok/Reels</button>
+            <button data-oran="1:1">⬛ 1:1 · kare</button>
+            <button data-oran="4:5">🖼️ 4:5 · Instagram</button>
+          </div>
+        </div>
+        <div class="satirAy">
+          <label>Saniyedeki kare</label>
+          <div class="secim" id="secFps">
+            <button data-fps="24">🎞️ 24 · sinema</button>
+            <button data-fps="30">▶️ 30 · normal</button>
+            <button data-fps="60">⚡ 60 · akıcı</button>
+          </div>
+        </div>
+        <div class="satirAy">
+          <label>Filtre (efekt)</label>
+          <div class="secim" id="secFiltre">
+            <button data-filtre="yok">🚫 Yok</button>
+            <button data-filtre="canli">🌈 Canlı</button>
+            <button data-filtre="sicak">🔥 Sıcak</button>
+            <button data-filtre="soguk">❄️ Soğuk</button>
+            <button data-filtre="siyahbeyaz">⚫ Siyah-beyaz</button>
+            <button data-filtre="vintage">📼 Vintage</button>
+            <button data-filtre="yumusak">🧴 Yumuşak cilt</button>
+            <button data-filtre="keskin">🔍 Keskin</button>
+            <button data-filtre="sinema">🎥 Sinematik</button>
+            <button data-filtre="neon">💜 Neon</button>
+          </div>
+        </div>
+        <div class="satirAy">
+          <label>Arka planı sil <small>(yeşil perde kaldırma)</small></label>
+          <div class="secim" id="secArka">
+            <button data-arka="yok">🚫 Kapalı</button>
+            <button data-arka="renk">🎨 Düz renk</button>
+            <button data-arka="yesil">🟩 Yeşil ekran (kurgu)</button>
+          </div>
+          <div class="renkSatir">
+            <label for="arkaRenk">Arka plan rengi</label>
+            <input type="color" id="arkaRenk" value="#0b1220">
+            <span id="arkaRenkYazi">#0b1220</span>
+          </div>
+        </div>
+        <div class="satirAy">
+          <label>Zoom <b id="etZoom">100</b>%</label>
+          <input type="range" id="gZoom" min="100" max="250" step="5">
+        </div>
+        <div class="altSatir">
+          <button class="dugme" data-act="efektSifirla">♻️ Efektleri sıfırla</button>
+        </div>
+        <div class="bosNot" id="kaliteNot">Kalite ve efekt ayarları hem önizlemeye hem kayda uygulanır. “Yok/16:9/30/100%” seçiliyken kayıt doğrudan kamera akışından alınır (en hızlı, en yüksek kalite).</div>
+      </div>
+    </section>
+
+    <section class="kart">
+      <div class="kartBas bKayit"><span class="sayi">4</span> KAYITLI METİNLER</div>
       <div class="kartGovde">
         <div class="kayitListe" id="kayitListe"></div>
       </div>
     </section>
 
     <section class="kart">
-      <div class="kartBas bAyar"><span class="sayi">4</span> AYARLAR</div>
+      <div class="kartBas bAyar"><span class="sayi">5</span> AYARLAR</div>
       <div class="kartGovde">
         <div class="ayarBlok">
 
@@ -189,7 +258,7 @@
     </section>
 
     <section class="kart">
-      <div class="kartBas bKumanda"><span class="sayi">5</span> TELEFONDAN KUMANDA</div>
+      <div class="kartBas bKumanda"><span class="sayi">6</span> TELEFONDAN KUMANDA</div>
       <div class="kartGovde">
         <div class="bosNot">
           Telefonu ikinci kumanda gibi kullanmak için bilgisayarda <b>kumanda-sunucu.py</b> dosyasını çalıştır,
